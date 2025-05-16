@@ -598,6 +598,7 @@ export default function Opportunities() {
                           <SelectValue placeholder="Selecione o quarter" />
                         </SelectTrigger>
                         <SelectContent>
+                          {/* Corrigido: Adicionado value não vazio para cada SelectItem */}
                           <SelectItem value="Q1">Q1</SelectItem>
                           <SelectItem value="Q2">Q2</SelectItem>
                           <SelectItem value="Q3">Q3</SelectItem>
@@ -612,12 +613,13 @@ export default function Opportunities() {
                       <Label htmlFor="mes">Mês</Label>
                       <Select
                         value={mes?.toString() || ""}
-                        onValueChange={(value) => setMes(value ? Number(value) : null)}
+                        onValueChange={(value) => setMes(Number(value))}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o mês" />
                         </SelectTrigger>
                         <SelectContent>
+                          {/* Corrigido: Adicionado value não vazio para cada SelectItem */}
                           <SelectItem value="1">Janeiro</SelectItem>
                           <SelectItem value="2">Fevereiro</SelectItem>
                           <SelectItem value="3">Março</SelectItem>
@@ -636,19 +638,27 @@ export default function Opportunities() {
                     
                     <div className="space-y-2">
                       <Label htmlFor="ano">Ano</Label>
-                      <Input
-                        id="ano"
-                        type="number"
+                      <Select
                         value={ano?.toString() || ""}
-                        onChange={(e) => setAno(e.target.value ? Number(e.target.value) : null)}
-                        placeholder="Ano"
-                      />
+                        onValueChange={(value) => setAno(Number(value))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o ano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {/* Corrigido: Adicionado value não vazio para cada SelectItem */}
+                          <SelectItem value="2023">2023</SelectItem>
+                          <SelectItem value="2024">2024</SelectItem>
+                          <SelectItem value="2025">2025</SelectItem>
+                          <SelectItem value="2026">2026</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
               </Tabs>
               
-              <DialogFooter>
+              <DialogFooter className="mt-6">
                 <DialogClose asChild>
                   <Button variant="outline">Cancelar</Button>
                 </DialogClose>
@@ -659,45 +669,46 @@ export default function Opportunities() {
         </div>
       </div>
       
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
+      <div className="mb-6 space-y-4">
+        <div className="flex gap-4">
           <Input
             placeholder="Buscar oportunidades..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="max-w-md"
           />
-        </div>
-        
-        <div>
+          
           <Select
             value={filterType || ""}
             onValueChange={(value) => setFilterType(value || null)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filtrar por tipo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os tipos</SelectItem>
+              {/* Corrigido: Adicionado value não vazio para cada SelectItem */}
+              <SelectItem value="all">Todos os tipos</SelectItem>
               <SelectItem value="intragrupo">Intragrupo</SelectItem>
               <SelectItem value="externa_entrada">Externa (Entrada)</SelectItem>
               <SelectItem value="externa_saida">Externa (Saída)</SelectItem>
             </SelectContent>
           </Select>
-        </div>
-        
-        <div>
+          
           <Select
             value={filterStatus || ""}
             onValueChange={(value) => setFilterStatus(value || null)}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filtrar por status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos os status</SelectItem>
+              {/* Corrigido: Adicionado value não vazio para cada SelectItem */}
+              <SelectItem value="all">Todos os status</SelectItem>
               {statusOptions.map((status) => (
-                <SelectItem key={status.id_status} value={status.nome_status}>
+                <SelectItem
+                  key={status.id_status}
+                  value={status.nome_status}
+                >
                   {status.nome_status}
                 </SelectItem>
               ))}
@@ -710,59 +721,62 @@ export default function Opportunities() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
+              <TableHead>Empresa Cliente</TableHead>
               <TableHead>Tipo</TableHead>
-              <TableHead>Data</TableHead>
               <TableHead>Origem</TableHead>
               <TableHead>Destino</TableHead>
-              <TableHead>Empresa Lead</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Ações</TableHead>
+              <TableHead>Data</TableHead>
+              <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
+                <TableCell colSpan={7} className="text-center py-4">
                   Carregando oportunidades...
                 </TableCell>
               </TableRow>
             ) : filteredOportunidades.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-4">
+                <TableCell colSpan={7} className="text-center py-4">
                   Nenhuma oportunidade encontrada.
                 </TableCell>
               </TableRow>
             ) : (
-              filteredOportunidades.map((op) => (
-                <TableRow key={op.id_oportunidade}>
-                  <TableCell>{op.id_oportunidade}</TableCell>
+              filteredOportunidades.map((oportunidade) => (
+                <TableRow key={oportunidade.id_oportunidade}>
+                  <TableCell className="font-medium">{oportunidade.nome_empresa_lead}</TableCell>
                   <TableCell>
-                    {op.tipo_oportunidade === 'intragrupo' ? 'Intragrupo' : 
-                     op.tipo_oportunidade === 'externa_entrada' ? 'Externa (Entrada)' : 
+                    {oportunidade.tipo_oportunidade === 'intragrupo' ? 'Intragrupo' : 
+                     oportunidade.tipo_oportunidade === 'externa_entrada' ? 'Externa (Entrada)' : 
                      'Externa (Saída)'}
                   </TableCell>
-                  <TableCell>{new Date(op.data_envio_recebimento).toLocaleDateString()}</TableCell>
-                  <TableCell>{op.empresa_origem || op.parceiro_origem}</TableCell>
                   <TableCell>
-                    {op.empresa_destino || 
-                     (op.parceiros_destino && op.parceiros_destino.length > 0 
-                      ? op.parceiros_destino.join(', ') 
-                      : '-')}
+                    {oportunidade.tipo_oportunidade === 'externa_entrada' ? 
+                      oportunidade.parceiro_origem : 
+                      oportunidade.empresa_origem}
                   </TableCell>
-                  <TableCell>{op.nome_empresa_lead}</TableCell>
                   <TableCell>
-                    <span className={
-                      op.status === 'Concluída' ? 'text-green-600' :
-                      op.status === 'Em andamento' ? 'text-blue-600' :
-                      op.status === 'Cancelada' ? 'text-red-600' :
-                      'text-yellow-600'
-                    }>
-                      {op.status}
+                    {oportunidade.tipo_oportunidade === 'externa_saida' ? 
+                      (oportunidade.parceiros_destino && oportunidade.parceiros_destino.join(', ')) : 
+                      oportunidade.empresa_destino}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      oportunidade.status === 'Em andamento' ? 'bg-blue-100 text-blue-800' :
+                      oportunidade.status === 'Concluído' ? 'bg-green-100 text-green-800' :
+                      oportunidade.status === 'Cancelado' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {oportunidade.status}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Link to={`/opportunities/${op.id_oportunidade}`}>
+                    {new Date(oportunidade.data_envio_recebimento).toLocaleDateString('pt-BR')}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link to={`/oportunidades/${oportunidade.id_oportunidade}`}>
                       <Button variant="outline" size="sm">
                         Detalhes
                       </Button>
